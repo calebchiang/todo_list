@@ -15,6 +15,64 @@ struct Task {
     due_date: chrono::NaiveDate,
 }
 
+struct TaskManager {
+    tasks: Vec<Task>,
+    next_id: u16,
+}
+
+impl TaskManager {
+    fn new() -> TaskManager {
+        TaskManager {
+            tasks: Vec::new(),
+            next_id: 1,
+        }
+    }
+
+    fn add_task(&mut self) {
+        println!("Task Name:");
+        let mut task_name = String::new();
+        io::stdin().read_line(&mut task_name).expect("Failed to read line");
+        let task_name = task_name.trim().to_string();
+
+        println!("Description:");
+        let mut description = String::new();
+        io::stdin().read_line(&mut description).expect("Failed to read line");
+        let description = description.trim().to_string();
+
+        println!("Priority (high/medium/low):");
+        let mut priority_input = String::new();
+        io::stdin().read_line(&mut priority_input).expect("Failed to read line");
+        let priority = match priority_input.trim().to_lowercase().as_ref() {
+            "high" => Priority::High,
+            "medium" => Priority::Medium,
+            "low" => Priority::Low,
+            _ => {
+                println!("Invalid priority. Defaulting to low");
+                Priority::Low
+            },
+        };
+
+        println!("Due Date (YYYY-MM-DD):");
+        let mut date_input = String::new();
+        io::stdin().read_line(&mut date_input).expect("Failed to read line");
+        let due_date = NaiveDate::parse_from_str(date_input.trim(), "%Y-%m-%d")
+            .expect("Invalid date format. Ensure it's YYYY-MM-DD");
+
+        let task = Task {
+            id: self.next_id,
+            name: task_name,
+            description: description,
+            priority: priority,
+            completed: false,
+            due_date: due_date,
+        };
+
+        self.tasks.push(task);
+        self.next_id += 1;
+
+        println!("Task added successfully. Task ID: {}", self.next_id - 1);
+    }
+}
 fn get_user_input() -> u8 {
     loop {
         println!("Welcome to your To-do List");
@@ -50,47 +108,22 @@ fn process_user_input(user_input: u8) {
     }
 }
 
-fn add_task() {
-    println!("Task Name:");
-    let mut task_name = String::new();
-    io::stdin().read_line(& mut task_name).expect("Failed to read line");
-    task_name = task_name.trim().to_string();
-
-    println!("Description: ");
-    let mut description = String::new();
-    io::stdin().read_line(&mut description).expect("Failed to read line");
-    description = description.trim().to_string();
-
-    println!("Priority (high/medium/low):");
-    let mut priority_input = String::new();
-    io::stdin().read_line(&mut priority_input).expect("Failed to read line");
-    let priority = match priority_input.trim().to_lowercase().as_ref() {
-        "high" => Priority::High,
-        "medium" => Priority::Medium,
-        "low" => Priority::Low,
-        _ => {
-            println!("Invalid priority. Defaulting to low");
-            Priority::Low
-        },
-    };
-
-    println!("Due Date: ");
-    let mut date_input = String::new();
-    io::stdin().read_line(&mut date_input).expect("Failed to read line");
-    let due_date = NaiveDate::parse_from_str(date_input.trim(), "%Y-%m-%d")
-        .expect("Invalid date format. Ensure it's YYYY-MM-DD");
-
-
-    // Display entered information (for debugging purposes or confirmation)
-    println!("Entered Task Name: {}", task_name);
-    println!("Entered Description: {}", description);
-    println!("Selected Priority: {:?}", priority_input);
-    println!("Set Due Date: {}", due_date);
-
-}
-
-
 fn main() {
-    let user_input = get_user_input();
-    println!("{}", user_input);
+    let mut task_manager = TaskManager::new();
+
+    loop {
+        let user_input = get_user_input();
+        match user_input {
+            1 => task_manager.add_task(),
+            2 => println!("View Tasks functionality to be implemented."),
+            3 => println!("Mark Task as Completed functionality to be implemented."),
+            4 => println!("Edit Task functionality to be implemented."),
+            5 => println!("Remove Task functionality to be implemented."),
+            6 => {
+                println!("Exiting the program.");
+                break;
+            },
+            _ => println!("Invalid option. Please try again."),
+        }
+    }
 }
