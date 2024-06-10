@@ -39,24 +39,41 @@ impl TaskManager {
         io::stdin().read_line(&mut description).expect("Failed to read line");
         let description = description.trim().to_string();
 
-        println!("Priority (high/medium/low):");
+        // Loop for priority input
         let mut priority_input = String::new();
-        io::stdin().read_line(&mut priority_input).expect("Failed to read line");
-        let priority = match priority_input.trim().to_lowercase().as_ref() {
-            "high" => Priority::High,
-            "medium" => Priority::Medium,
-            "low" => Priority::Low,
-            _ => {
-                println!("Invalid priority. Defaulting to low");
-                Priority::Low
-            },
-        };
+        let mut priority;
+        loop {
+            println!("Priority (high/medium/low):");
+            priority_input.clear();  // Clear previous input
+            io::stdin().read_line(&mut priority_input).expect("Failed to read line");
+            priority = match priority_input.trim().to_lowercase().as_ref() {
+                "high" => Priority::High,
+                "medium" => Priority::Medium,
+                "low" => Priority::Low,
+                _ => {
+                    println!("Invalid priority. Please enter 'high', 'medium', or 'low'.");
+                    continue;
+                },
+            };
+            break;  // Exit loop if valid priority is entered
+        }
 
+        // Loop for due date input
         println!("Due Date (YYYY-MM-DD):");
-        let mut date_input = String::new();
-        io::stdin().read_line(&mut date_input).expect("Failed to read line");
-        let due_date = NaiveDate::parse_from_str(date_input.trim(), "%Y-%m-%d")
-            .expect("Invalid date format. Ensure it's YYYY-MM-DD");
+        let mut due_date;
+        loop {
+            let mut date_input = String::new();
+            io::stdin().read_line(&mut date_input).expect("Failed to read line");
+            match NaiveDate::parse_from_str(date_input.trim(), "%Y-%m-%d") {
+                Ok(date) => {
+                    due_date = date;
+                    break;  // Exit loop if date is valid
+                },
+                Err(_) => {
+                    println!("Invalid date format. Ensure it's YYYY-MM-DD. Please try again.");
+                }
+            }
+        }
 
         let task = Task {
             id: self.next_id,
@@ -93,18 +110,6 @@ fn get_user_input() -> u8 {
                 println!("Invalid input. Please enter a number between 1 and 6:")
             }
         }
-    }
-}
-
-fn process_user_input(user_input: u8) {
-    match user_input {
-        1 => add_task(),
-        2 => display_tasks(),
-        3 => mark_completed(),
-        4 => edit_task(),
-        5 => remove_task(),
-        6 => return,
-        _ => println!("Invalid option. Please try again."),
     }
 }
 
